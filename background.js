@@ -10,12 +10,15 @@ browser.menus.onClicked.addListener(async function (info, tab) {
     }
 });
 
-browser.runtime.onMessage.addListener(imageURL =>{
+browser.runtime.onMessage.addListener(propertyObject =>{
+    
     browser.downloads.download({
-        url : imageURL,
-        filename : `images/${new Date().getTime()}.jpg`,
+        url : propertyObject.imageUrl,
+        filename : `${propertyObject.id}/${propertyObject.id}.jpg`,
         conflictAction : 'uniquify'
     });
+    downloadObjectAsJson(propertyObject)
+    
 });
 
 function sendMessage(info, tab) {
@@ -25,5 +28,17 @@ function sendMessage(info, tab) {
             chrome.tabs.sendMessage(tabs[0].id, info.targetElementId);
         }
     );
+}
+
+
+function downloadObjectAsJson(exportObj){
+    var json = JSON.stringify(exportObj);
+    var blob = new Blob([json], {type: "application/json"});
+    var url  = URL.createObjectURL(blob);
+    browser.downloads.download({
+        url : url,
+        filename : `${exportObj.id}/${exportObj.id}.json`,
+        conflictAction : 'uniquify'
+    });
 }
 
